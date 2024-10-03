@@ -158,7 +158,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "https://rowg.co.ke/",  # Allow your Vite dev server
+    "https://rowg.co.ke/",  
+    "http://tcookwgowook4cc44w8swkwo.147.79.102.115.sslip.io/",
 ]
 
 # Static files (CSS, JavaScript, Images)
