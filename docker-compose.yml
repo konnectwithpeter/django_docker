@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: your_db_name
+      POSTGRES_USER: your_db_user
+      POSTGRES_PASSWORD: your_db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672" # RabbitMQ port
+      - "15672:15672" # RabbitMQ management dashboard port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      DB_NAME: your_db_name
+      DB_USER: your_db_user
+      DB_PASSWORD: your_db_password
+      DB_HOST: db
+      DB_PORT: 5432
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+
+  celery:
+    build: .
+    command: celery -A app worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - rabbitmq
+      - db
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      DB_NAME: your_db_name
+      DB_USER: your_db_user
+      DB_PASSWORD: your_db_password
+      DB_HOST: db
+      DB_PORT: 5432
+
+volumes:
+  postgres_data:
